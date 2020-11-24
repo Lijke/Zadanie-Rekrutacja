@@ -15,7 +15,8 @@ public class RayCasting : MonoBehaviour
 
     Touch touch;
     HitManager hitManager;
-
+    public float timeTouchBegan;
+    public float tapTime;
     private void Awake()
     {
         lineRenderer = GetComponent<LineRenderer>();
@@ -25,6 +26,36 @@ public class RayCasting : MonoBehaviour
     private void Update()
     {
         DrawLineThenShoot();
+    }
+    private void Shoot(RaycastHit hit)
+    {
+        foreach (Touch touch in Input.touches)
+        {
+            if (touch.phase == TouchPhase.Began)
+            {
+                timeTouchBegan = Time.time;
+            }
+            if (touch.phase == TouchPhase.Ended)
+            {
+                tapTime = Time.time - timeTouchBegan;
+                Debug.Log(tapTime);
+            }
+            if(tapTime<0.2f && touch.phase==TouchPhase.Ended)
+            {
+                if (hit.collider.tag == "Enemy") 
+                {
+                    GameObject enemy = hit.collider.gameObject; 
+                    enemy.GetComponent<Animator>().SetBool("Dead", true); 
+                    hitManager.addEnemyHit(1); 
+                    hitManager.returnScore(); 
+                } 
+                else if (hit.collider.tag == "Wall") 
+                { 
+                    
+                }
+            }
+        }
+        
     }
     private void DrawLineThenShoot()
     {
@@ -51,15 +82,6 @@ public class RayCasting : MonoBehaviour
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, ray.origin + ray.direction * remaingLenght);
             }
         }
-        if (Input.touchCount > 0 && Input.touches[0].phase == TouchPhase.Ended)
-        {
-            if (hit.collider.tag == "Enemy")
-            {
-                GameObject enemy = hit.collider.gameObject;
-                enemy.GetComponent<Animator>().SetBool("Dead", true);
-                hitManager.addEnemyHit(1);
-                
-            }
-        }
+        Shoot(hit);
     }
 }

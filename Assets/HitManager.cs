@@ -6,7 +6,7 @@ public class HitManager : MonoBehaviour
 {
     public int enemyHit=0;
     public int playerHit=0;
-   
+    public GameObject uiEndLevel;
     public void addEnemyHit(int point)
     {
         enemyHit += point;
@@ -17,9 +17,9 @@ public class HitManager : MonoBehaviour
     }
     public void returnScore()
     {
-        if(playerHit>0)
+        if(enemyHit>0)
         {
-            //defeat;
+            uiEndLevel.SetActive(true);
         }
         else
         {
