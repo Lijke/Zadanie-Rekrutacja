@@ -19,8 +19,10 @@ public class RayCastingEnemy : MonoBehaviour
     public float tapTime;
 
 
+    public GameObject player;
     private void Awake()
     {
+        player = GameObject.Find("Character");
         lineRenderer = GetComponent<LineRenderer>();
         hitManager = GameObject.Find("HitManager").GetComponent<HitManager>();
     }
@@ -46,8 +48,12 @@ public class RayCastingEnemy : MonoBehaviour
             {
                 if (hit.collider.tag == "Player")
                 {
+                    GameObject player = hit.collider.gameObject;
+                    player.GetComponent<Animator>().SetBool("Dead", true);
                     hitManager.addPlayerHit(1);
                     hitManager.returnScore();
+                    
+                    
                 }
             }
         }
