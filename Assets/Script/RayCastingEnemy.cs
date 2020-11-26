@@ -4,15 +4,15 @@ using UnityEngine;
 
 public class RayCastingEnemy : MonoBehaviour
 {
-
+    [Header("RayCast Settings")]
     public int reflections;
     public float maxLenght;
-
     private LineRenderer lineRenderer;
     private Ray ray;
     private RaycastHit hit;
     private Vector3 direction;
 
+    [Header("Touch Settings")]
     Touch touch;
     HitManager hitManager;
     public float timeTouchBegan;
@@ -52,8 +52,6 @@ public class RayCastingEnemy : MonoBehaviour
                     player.GetComponent<Animator>().SetBool("Dead", true);
                     hitManager.addPlayerHit(1);
                     hitManager.returnScore();
-                    
-                    
                 }
             }
         }

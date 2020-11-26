@@ -5,19 +5,22 @@ using UnityEngine;
 [RequireComponent(typeof(LineRenderer))]
 public class RayCasting : MonoBehaviour
 {
+    [Header("Touch Settings")]
+    Touch touch;
+    HitManager hitManager;
+    public float timeTouchBegan;
+    public float tapTime;
+    [SerializeField] private bool isMoved = false;
+
+    [Header("RayCast Settings")]
     public int reflections;
     public float maxLenght;
-
     private LineRenderer lineRenderer;
     private Ray ray;
     private RaycastHit hit;
     private Vector3 direction;
 
-    Touch touch;
-    HitManager hitManager;
-    public float timeTouchBegan;
-    public float tapTime;
-
+    [Header("Audio Settings")]
     public AudioSource audioSource;
     public AudioClip clip;
     private void Awake()
@@ -32,35 +35,16 @@ public class RayCasting : MonoBehaviour
     }
     private void Shoot(RaycastHit hit)
     {
-        foreach (Touch touch in Input.touches)
+        audioSource.PlayOneShot(clip, 1);
+        if (hit.collider.tag == "Enemy")
         {
-            if (touch.phase == TouchPhase.Began)
-            {
-                timeTouchBegan = Time.time;
-            }
-            if (touch.phase == TouchPhase.Ended)
-            {
-                tapTime = Time.time - timeTouchBegan;
-                Debug.Log(tapTime);
-            }
-            if(tapTime<0.2f && touch.phase==TouchPhase.Ended)
-            {
-                audioSource.PlayOneShot(clip,1);
-                if (hit.collider.tag == "Enemy") 
-                {
-                    GameObject enemy = hit.collider.gameObject; 
-                    enemy.GetComponent<Animator>().SetBool("Dead", true); 
-                    hitManager.addEnemyHit(1); 
-                    hitManager.returnScore();
-                    StartCoroutine(DeleteObject(enemy));
-                } 
-                else if (hit.collider.tag == "Player") 
-                { 
-                    
-                }
-            }
+            GameObject enemy = hit.collider.gameObject;
+            enemy.GetComponent<Animator>().SetBool("Dead", true);
+            hitManager.addEnemyHit(1);
+            hitManager.returnScore();
+            StartCoroutine(DeleteObject(enemy));
         }
-        
+
     }
     private void DrawLineThenShoot()
     {
@@ -87,7 +71,28 @@ public class RayCasting : MonoBehaviour
                 lineRenderer.SetPosition(lineRenderer.positionCount - 1, ray.origin + ray.direction * remaingLenght);
             }
         }
-        Shoot(hit);
+        isMoved = false;
+        foreach (Touch touch in Input.touches)
+        {
+            if (touch.phase == TouchPhase.Began)
+            {
+                timeTouchBegan = Time.time;
+            }
+            if(touch.phase == TouchPhase.Moved)
+            {
+                isMoved = true;
+            }
+            if (touch.phase == TouchPhase.Ended)
+            {
+                tapTime = Time.time - timeTouchBegan;
+                Debug.Log(tapTime);
+            }
+            if (tapTime < 0.11f && touch.phase == TouchPhase.Ended  && isMoved==false)
+            {
+                Shoot(hit);
+            }
+        }
+        
     }
     private IEnumerator DeleteObject(GameObject hit)
     {
